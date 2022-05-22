@@ -1,0 +1,41 @@
+name: build-sdk
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "branch"
+        required: false
+        default: main
+      sdk_url:
+        description: "sdk_url"
+        required: true
+        default: "sdk_url"
+      sdk_keys:
+        description: "sdk_keys"
+        required: true
+        default: "sdk_keys"
+
+jobs:
+  build_sdk:
+    runs-on: ubuntu-latest
+    env:
+      DISPLAY: :0
+    steps:
+      - uses: actions/checkout@v3
+      - name: setup-build-env
+        run: |
+          sudo apt-get install -y xvfb libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-xinput0 libxcb-xfixes0 > /dev/null 2>&1
+          sudo /usr/bin/Xvfb $DISPLAY -screen 0 1280x1024x24 &
+      - name: build-sdk
+        id: build-sdk
+        run: |
+          INP_SDK_URL=$(jq -r '.inputs.sdk_url' $GITHUB_EVENT_PATH)
+          echo ::add-mask::$INP_SDK_URL
+          export SDK_URL="$INP_SDK_URL"
+
+          INP_SDK_KEYS=$(jq -r '.inputs.sdk_keys' $GITHUB_EVENT_PATH)
+          echo ::add-mask::$INP_SDK_KEYS
+          export SDK_KEYS="$INP_SDK_KEYS"
+
+          chmod +x ./scripts/build-sdk.sh && ./scripts/build-sdk.sh

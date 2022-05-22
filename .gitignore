@@ -1,0 +1,10 @@
+.idea
+.vscode
+cmake-*
+.DS_Store
+build
+git-update.js
+node_modules
+NOTES.md
+package-lock.json
+package.json

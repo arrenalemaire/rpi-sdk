@@ -1,0 +1,38 @@
+name: initialize-sdk
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "branch"
+        required: false
+        default: main
+      sdk_url:
+        description: "sdk_url"
+        required: true
+        default: "sdk_url"
+      sdk_keys:
+        description: "sdk_keys"
+        required: true
+        default: "sdk_keys"
+
+jobs:
+  initialize-sdk:
+    runs-on: ubuntu-latest
+    name: initialize-sdk
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "14"
+      - name: initialize-sdk
+        id: initialize-sdk
+        run: |
+          INP_SDK_URL=$(jq -r '.inputs.sdk_url' $GITHUB_EVENT_PATH)
+          echo ::add-mask::$INP_SDK_URL
+          export SDK_URL="$INP_SDK_URL"
+
+          INP_SDK_KEYS=$(jq -r '.inputs.sdk_keys' $GITHUB_EVENT_PATH)
+          echo ::add-mask::$INP_SDK_KEYS
+          export SDK_KEYS="$INP_SDK_KEYS"
+          chmod +x ./scripts/initialize-sdk.sh && ./scripts/initialize-sdk.sh
